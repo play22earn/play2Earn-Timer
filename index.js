@@ -6,6 +6,7 @@ const todoRoutes = require("./routes/todos");
 const moment = require("moment");
 const soment = require("moment-timezone");
 require("dotenv").config();
+const mysql = require("mysql");
 const schedule = require("node-schedule");
 const { default: axios } = require("axios");
 const app = express();
@@ -30,6 +31,24 @@ app.use(express.json());
 const PORT = process.env.PORT || 4000;
 
 app.use("/api/v1", todoRoutes);
+
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE_URL,
+  multipleStatements: true,
+  connectTimeout: 10000,
+});
+
+// Event listener for new connections
+pool.on("connection", function (_conn) {
+  if (_conn) {
+    console.log(`Connected to the database via threadId ${_conn.threadId}!!`);
+    _conn.query("SET SESSION auto_increment_increment=1");
+  }
+});
 
 const job = schedule.scheduleJob("0 1 * * *", async function () {
   try {
@@ -130,29 +149,6 @@ function generatedTimeEveryAfterEveryOneMin() {
     }
   });
 }
-function generatedTimeEveryAfterEveryOneMinForRollet() {
-  let second = 59;
-  let job = schedule.scheduleJob("* * * * * *", function () {
-    io.emit("oneminrollet", second); // Emit the formatted time
-    if (second === 0) {
-      oneMinRolletResult();
-      job?.cancel();
-      setTimeout(() => {
-        generatedTimeEveryAfterEveryOneMinForRollet();
-      }, 10000);
-    } else {
-      second--;
-    }
-  });
-}
-
-const oneMinRolletResult = async () => {
-  try {
-    await axios.get(`https://admin.sunlottery.fun/api/roulette-result`);
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 const oneMinColorWinning = async () => {
   try {
@@ -445,8 +441,6 @@ io.on("connection", (socket) => {});
 let x = true;
 let trx = true;
 
-
-
 if (x) {
   // generateAndSendMessage();
   console.log("Waiting for the next minute to start...");
@@ -476,6 +470,170 @@ const finalRescheduleJob = schedule.scheduleJob(
     generatedTimeEveryAfterEveryFiveMinTRX();
   }
 );
+
+//////////////////////////////// promotion data ///////////////////////////////////////
+app.get("/api/v1/promotiondata", async (req, res) => {
+  pool.getConnection((err, con) => {
+    if (err) {
+      con.release();
+      console.error("Error getting database connection: ", err);
+      return res.status(500).json({
+        msg: `Something went wrong ${err}`,
+      });
+    }
+    const { id } = req.query;
+    if (!id || isNaN(id)) {
+      con.release();
+      return res.status(400).json({
+        message: "Id is missing or invalid",
+      });
+    }
+
+    try {
+      con.query("SELECT * FROM user", (err, result) => {
+        if (err) {
+          console.error(err);
+          con.release();
+          return res.status(500).json({
+            msg: "Error in data fetching",
+            error: err.message,
+            er: err,
+          });
+        }
+
+        const array = result.map((i) => ({
+          ...i,
+          count: 0,
+          teamcount: 0,
+          directReferrals: [],
+        }));
+
+        let new_data = updateReferralCountnew(array).find((i) => i.id == id);
+        const levels = Array.from({ length: 20 }, (_, i) => `level_${i + 1}`);
+
+        let direct_ids = new_data.directReferrals?.map((i) => i?.c_id);
+
+        let indirect_ids = [];
+        for (let i = levels.length - 1; i >= 0; i--) {
+          let currentLevel = new_data?.teamMembersByLevel[levels[i - 1]];
+          let nextLevel = new_data?.teamMembersByLevel[levels[i]];
+
+          if (currentLevel && nextLevel) {
+            let idsToRemove = currentLevel.map((item) => item.id);
+            nextLevel = nextLevel.filter(
+              (item) => !idsToRemove.includes(item.id)
+            );
+            new_data.teamMembersByLevel[levels[i]] = nextLevel;
+          }
+        }
+
+        for (let i = 1; i <= 22; i++) {
+          if (new_data.teamMembersByLevel[`level_${i}`]?.length > 0) {
+            indirect_ids.push(
+              ...new_data.teamMembersByLevel[`level_${i}`].map(
+                (item) => item.id
+              )
+            );
+          }
+        }
+
+        new_data = { ...new_data, deposit_member_amount: [] };
+
+        const promises = [];
+        for (let i = 1; i <= 20; i++) {
+          if (new_data.teamMembersByLevel[`level_${i}`]?.length > 0) {
+            let levelIds = new_data.teamMembersByLevel[`level_${i}`].map(
+              (k) => k.id
+            );
+            const promise = new Promise((resolve, reject) => {
+              con.query(
+                `SELECT SUM(tr15_amt) AS total_amount,count(*) AS total_member FROM tr15_fund_request WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND tr15_uid IN (${levelIds.join(
+                  ","
+                )});`,
+                (err, resultteamamount) => {
+                  if (err) {
+                    con.release();
+                    console.error(err);
+                    reject(err);
+                  } else {
+                    resolve(resultteamamount[0].total_amount || 0);
+                  }
+                }
+              );
+            });
+            promises.push(promise);
+          } else {
+            promises.push(0);
+          }
+        }
+
+        Promise.all(promises)
+          .then((deposit_member_amounts) => {
+            new_data.deposit_member_amount = deposit_member_amounts;
+            con.query(
+              `SELECT SUM(tr15_amt) AS total_amount,COUNT(DISTINCT tr15_uid) AS total_member FROM tr15_fund_request WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND tr15_uid IN (${direct_ids.join(
+                ","
+              )});`,
+              (err, result) => {
+                if (err) {
+                  con.release();
+                  console.error(err);
+                  return res.status(500).json({
+                    msg: "Error in data fetching",
+                    error: err.message,
+                    er: err,
+                  });
+                }
+
+                con.query(
+                  `SELECT SUM(tr15_amt) AS total_amount,COUNT(DISTINCT tr15_uid) AS total_member FROM tr15_fund_request WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND tr15_uid IN (${indirect_ids.join(
+                    ","
+                  )});`,
+                  (err, resultteam) => {
+                    if (err) {
+                      console.error(err);
+                      return res.status(500).json({
+                        msg: "Error in data fetching",
+                        error: err.message,
+                        er: err,
+                      });
+                    }
+                    con.release();
+                    return res.status(200).json({
+                      data: {
+                        ...new_data,
+                        deposit_member: result[0].total_member || 0,
+                        deposit_recharge: result[0].total_amount || 0,
+                        deposit_member_team: resultteam[0].total_member || 0,
+                        deposit_recharge_team: resultteam[0].total_amount || 0,
+                      },
+                      msg: "Data fetched successfully",
+                    });
+                  }
+                );
+              }
+            );
+          })
+          .catch((err) => {
+            console.error(err);
+            con.release();
+            return res.status(500).json({
+              msg: "Error in data fetching",
+              error: err.message,
+              er: err,
+            });
+          });
+      });
+    } catch (e) {
+      con.release();
+      console.error(e);
+      return res.status(500).json({
+        msg: "Error in data fetching",
+        error: e.message,
+      });
+    }
+  });
+});
 
 app.get("/", (req, res) => {
   res.send(`<h1>server running at port=====> ${PORT}</h1>`);
