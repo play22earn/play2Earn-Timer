@@ -54,8 +54,11 @@ const job = schedule.scheduleJob("0 1 * * *", async function () {
   try {
     // Make the API call using axios
     const response = await axios.get(
-      "https://admin.play2earn.space/api/wallet-income"
+      "https://admin.play2earn.space/api/Daily-salary-income"
     );
+    // await axios.get(
+    //   "https://admin.play2earn.space/api/wallet-income"
+    // );
     setTimeout(async () => {
       try {
         await axios.get("https://admin.play2earn.space/api/bet-income");
@@ -66,7 +69,10 @@ const job = schedule.scheduleJob("0 1 * * *", async function () {
 
     setTimeout(async () => {
       try {
-        await axios.get("https://admin.play2earn.space/api/direct-income");
+        // await axios.get("https://admin.play2earn.space/api/direct-income");
+        await axios.get(
+          "https://admin.play2earn.space/api/daily-non-working-bonus"
+        );
       } catch (e) {
         console.log(e);
       }
@@ -730,7 +736,6 @@ function updateReferralCountnew(users) {
   return users;
 }
 
-
 app.get("/", (req, res) => {
   res.send(`<h1>server running at port=====> ${PORT}</h1>`);
 });
@@ -738,15 +743,6 @@ app.get("/", (req, res) => {
 httpServer.listen(PORT, () => {
   console.log("Server listening on port", PORT);
 });
-
-
-
-
-
-
-
-
-
 
 // app.get("/api/v1/promotiondata", async (req, res) => {
 //   pool.getConnection((err, con) => {
@@ -825,7 +821,7 @@ httpServer.listen(PORT, () => {
 //               con.query(
 //                 `SELECT SUM(tr15_amt) AS total_amount, COUNT(*) AS total_member
 //                  FROM tr15_fund_request
-//                  WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND 
+//                  WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND
 //                  ${
 //                    levelIds.length > 0
 //                      ? `tr15_uid IN (${levelIds.join(",")})`
@@ -870,7 +866,7 @@ httpServer.listen(PORT, () => {
 //                 }
 
 //                 con.query(
-//                   `SELECT SUM(tr15_amt) AS total_amount,COUNT(DISTINCT tr15_uid) AS total_member FROM tr15_fund_request WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND 
+//                   `SELECT SUM(tr15_amt) AS total_amount,COUNT(DISTINCT tr15_uid) AS total_member FROM tr15_fund_request WHERE tr15_status = 'Success' AND tr15_depo_type = 'Winzo' AND
 //                                 ${
 //                                   indirect_ids.length > 0
 //                                     ? `tr15_uid IN (${indirect_ids.join(",")})`
