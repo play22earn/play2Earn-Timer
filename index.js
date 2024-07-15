@@ -277,13 +277,13 @@ function generatedTimeEveryAfterEveryOneMinTRX() {
           const res = await axios.get(
             `https://apilist.tronscanapi.com/api/block?sort=-balance&start=0&limit=20&producer=&number=&start_timestamp=${datetoAPISend}&end_timestamp=${datetoAPISend}`
           );
-          if (res?.data?.data[0]) {
-            const obj = res.data.data[0];
-            const fd = new FormData();
-            fd.append("hash", `**${obj.hash.slice(-4)}`);
-            fd.append("digits", `${obj.hash.slice(-5)}`);
-            fd.append("number", obj.number);
-            fd.append("time", moment(time).format("HH:mm:ss"));
+          if (res?.data?.data?.[0]) {
+            const obj = res.data.data?.[0];
+            // const fd = new FormData();
+            // fd.append("hash", `**${obj.hash.slice(-4)}`);
+            // fd.append("digits", `${obj.hash.slice(-5)}`);
+            // fd.append("number", obj.number);
+            // fd.append("time", moment(time).format("HH:mm:ss"));
 
             const newString = obj.hash;
             let num = null;
@@ -293,14 +293,45 @@ function generatedTimeEveryAfterEveryOneMinTRX() {
                 break;
               }
             }
-            fd.append("slotid", num);
-            fd.append("overall", JSON.stringify(obj));
+            // fd.append("slotid", num);
+            // fd.append("overall", JSON.stringify(obj));
             //  trx 1
             try {
-              const response = await axios.post(
-                "https://admin.play2earn.space/api/insert-one-trx",
-                fd
-              );
+              // const response = await axios.post(
+              //   "https://admin.play2earn.space/api/insert-one-trx",
+              //   fd
+              // );
+            
+              pool.getConnection((err, con) => {
+                if (err) {
+                  console.error("Error getting database connection: ", err);
+                  return res.status(500).json({
+                    msg: `Something went wrong ${err}`,
+                  });
+                }
+                const query = `CALL sp_insert_trx_one_min_result(?, ?, ?, ?, ?, ?, ?)`;
+                con.query(
+                  query,
+                  [
+                    num,
+                    String(moment(time).format("HH:mm:ss")),
+                    1,
+                    `**${obj.hash.slice(-4)}`,
+                    JSON.stringify(obj),
+                    `${obj.hash.slice(-5)}`,
+                    obj.number,
+                  ],
+                  (err, resule) => {
+                    con?.release();
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        msg: "Something went wrong related with databse",
+                      });
+                    }
+                  }
+                );
+              });
             } catch (e) {
               console.log(e);
             }
@@ -337,11 +368,11 @@ const generatedTimeEveryAfterEveryThreeMinTRX = () => {
           );
           if (res?.data?.data[0]) {
             const obj = res.data.data[0];
-            const fd = new FormData();
-            fd.append("hash", `**${obj.hash.slice(-4)}`);
-            fd.append("digits", `${obj.hash.slice(-5)}`);
-            fd.append("number", obj.number);
-            fd.append("time", moment(time).format("HH:mm:ss"));
+            // const fd = new FormData();
+            // fd.append("hash", `**${obj.hash.slice(-4)}`);
+            // fd.append("digits", `${obj.hash.slice(-5)}`);
+            // fd.append("number", obj.number);
+            // fd.append("time", moment(time).format("HH:mm:ss"));
             const newString = obj.hash;
             let num = null;
             for (let i = newString.length - 1; i >= 0; i--) {
@@ -350,14 +381,45 @@ const generatedTimeEveryAfterEveryThreeMinTRX = () => {
                 break;
               }
             }
-            fd.append("slotid", num);
-            fd.append("overall", JSON.stringify(obj));
+            // fd.append("slotid", num);
+            // fd.append("overall", JSON.stringify(obj));
             //  trx 3
             try {
-              const response = await axios.post(
-                "https://admin.play2earn.space/api/insert-three-trx",
-                fd
-              );
+              // const response = await axios.post(
+              //   "https://admin.play2earn.space/api/insert-three-trx",
+              //   fd
+              // );
+
+              pool.getConnection((err, con) => {
+                if (err) {
+                  console.error("Error getting database connection: ", err);
+                  return res.status(500).json({
+                    msg: `Something went wrong ${err}`,
+                  });
+                }
+                const query = `CALL sp_insert_trx_three_min_result(?, ?, ?, ?, ?, ?, ?)`;
+                con.query(
+                  query,
+                  [
+                    num,
+                    String(moment(time).format("HH:mm:ss")),
+                    2,
+                    `**${obj.hash.slice(-4)}`,
+                    JSON.stringify(obj),
+                    `${obj.hash.slice(-5)}`,
+                    obj.number,
+                  ],
+                  (err, resule) => {
+                    con?.release();
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        msg: "Something went wrong related with databse",
+                      });
+                    }
+                  }
+                );
+              });
             } catch (e) {
               console.log(e);
             }
@@ -398,11 +460,11 @@ const generatedTimeEveryAfterEveryFiveMinTRX = () => {
           );
           if (res?.data?.data[0]) {
             const obj = res.data.data[0];
-            const fd = new FormData();
-            fd.append("hash", `**${obj.hash.slice(-4)}`);
-            fd.append("digits", `${obj.hash.slice(-5)}`);
-            fd.append("number", obj.number);
-            fd.append("time", moment(time).format("HH:mm:ss"));
+            // const fd = new FormData();
+            // fd.append("hash", `**${obj.hash.slice(-4)}`);
+            // fd.append("digits", `${obj.hash.slice(-5)}`);
+            // fd.append("number", obj.number);
+            // fd.append("time", moment(time).format("HH:mm:ss"));
             const newString = obj.hash;
             let num = null;
             for (let i = newString.length - 1; i >= 0; i--) {
@@ -411,14 +473,45 @@ const generatedTimeEveryAfterEveryFiveMinTRX = () => {
                 break;
               }
             }
-            fd.append("slotid", num);
-            fd.append("overall", JSON.stringify(obj));
+            // fd.append("slotid", num);
+            // fd.append("overall", JSON.stringify(obj));
             //  trx 3
             try {
-              const response = await axios.post(
-                "https://admin.play2earn.space/api/insert-five-trx",
-                fd
-              );
+              pool.getConnection((err, con) => {
+                if (err) {
+                  console.error("Error getting database connection: ", err);
+                  return res.status(500).json({
+                    msg: `Something went wrong ${err}`,
+                  });
+                }
+                const query = `CALL sp_insert_trx_five_min_result(?, ?, ?, ?, ?, ?, ?)`;
+                con.query(
+                  query,
+                  [
+                    num,
+                    String(moment(time).format("HH:mm:ss")),
+                    3,
+                    `**${obj.hash.slice(-4)}`,
+                    JSON.stringify(obj),
+                    `${obj.hash.slice(-5)}`,
+                    obj.number,
+                  ],
+                  (err, resule) => {
+                    con?.release();
+                    if (err) {
+                      console.log(err);
+                      return res.status(500).json({
+                        msg: "Something went wrong related with databse",
+                      });
+                    }
+                  }
+                );
+              });
+
+              // const response = await axios.post(
+              //   "https://admin.play2earn.space/api/insert-five-trx",
+              //   fd
+              // );
             } catch (e) {
               console.log(e);
             }
