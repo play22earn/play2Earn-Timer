@@ -85,60 +85,7 @@ const job = schedule.scheduleJob("0 1 * * *", async function () {
 let twoMinTrxJob;
 let threeMinTrxJob;
 
-const array = [
-  2, 20, 2, 30, 2, 60, 10, 2, 3, 18, 2, 17, 12, 40, 10, 2, 5, 3, 2, 2, 12, 13,
-  10, 2, 2, 2, 20, 50, 2, 2,
-];
 
-function generateAndSendMessage() {
-  const value = Math.floor(Math.random() * array.length - 1) + 1;
-  const time = 20 || array[value] || 12;
-  io.emit("message", time);
-
-  let fly_time = 0;
-  let milliseconds = 0;
-  let seconds = 0;
-
-  io.emit("setloder", false);
-  io.emit("isFlying", true);
-
-  const timerInterval = setInterval(() => {
-    if (milliseconds === 100) {
-      seconds += 1;
-      milliseconds = 0;
-    }
-
-    io.emit("seconds", `${String(milliseconds).padStart(2, "0")}_${seconds}`);
-    const newTime = fly_time + 1;
-
-    if (newTime >= time * 1000) {
-      clearInterval(timerInterval);
-      fly_time = 0;
-      milliseconds = 0;
-      seconds = 0;
-    }
-
-    milliseconds += 1;
-    fly_time = newTime;
-  }, 100);
-
-  setTimeout(() => {
-    io.emit("isFlying", false);
-    clearInterval(timerInterval);
-  }, time * 1000);
-
-  setTimeout(() => {
-    clearInterval(timerInterval);
-    io.emit("setcolorofdigit", true);
-  }, (5 + ((time - 5) / 5 - 0.3) * 5) * 1000);
-
-  setTimeout(() => {
-    io.emit("setcolorofdigit", false);
-    io.emit("setloder", true);
-  }, time * 1000 + 3000);
-
-  setTimeout(generateAndSendMessage, time * 1000 + 8000);
-}
 
 // color prediction game time generated every 1 min
 function generatedTimeEveryAfterEveryOneMin() {
@@ -183,7 +130,7 @@ const generatedTimeEveryAfterEveryThreeMin = () => {
       min--;
       if (min < 0) min = 2; // Reset min to 2 when it reaches 0
     }
-  });
+  }); 
 };
 
 const oneMinCheckResult2min = async () => {
@@ -560,15 +507,37 @@ if (x) {
   }, secondsUntilNextMinute * 1000);
 }
 
-const finalRescheduleJob = schedule.scheduleJob(
-  "15,30,45,0 * * * *",
-  function () {
-    twoMinTrxJob?.cancel();
-    threeMinTrxJob?.cancel();
+// const finalRescheduleJob = schedule.scheduleJob(
+//   "15,30,45,0 * * * *",
+//   function () {
+//     twoMinTrxJob?.cancel();
+//     threeMinTrxJob?.cancel();
+//     generatedTimeEveryAfterEveryThreeMinTRX();
+//     generatedTimeEveryAfterEveryFiveMinTRX();
+//   }
+// );
+
+if (trx) {
+  const now = new Date();
+  const nowIST = soment(now).tz("Asia/Kolkata");
+
+  const currentMinute = nowIST.minutes();
+  const currentSecond = nowIST.seconds();
+
+  const minutesRemaining = 60 - currentMinute - 1;
+  const secondsRemaining = 60 - currentSecond;
+
+  const delay = (minutesRemaining * 60 + secondsRemaining) * 1000;
+  console.log(minutesRemaining, secondsRemaining, delay);
+
+  setTimeout(() => {
     generatedTimeEveryAfterEveryThreeMinTRX();
     generatedTimeEveryAfterEveryFiveMinTRX();
-  }
-);
+    trx = false;
+  }, delay);
+}
+
+
 
 //////////////////////////////// promotion data ///////////////////////////////////////
 app.get("/api/v1/promotiondata", async (req, res) => {
