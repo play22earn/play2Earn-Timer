@@ -14,7 +14,8 @@ const soment = require("moment-timezone");
 const { default: axios } = require("axios");
 
 exports.generatedTimeEveryAfterEveryOneMin = (io) => {
-  const job = schedule.schedule("* * * * * *", function () {
+  // const job = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date();
     const timeToSend =
       currentTime.getSeconds() > 0
@@ -25,12 +26,14 @@ exports.generatedTimeEveryAfterEveryOneMin = (io) => {
       // oneMinCheckResult();
       oneMinColorWining();
     }
-  });
+  }, 1000);
+  // });
 };
 
 exports.generatedTimeEveryAfterEveryThreeMin = (io) => {
   let min = 2;
-  const job = schedule.schedule("* * * * * *", function () {
+  // const job = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("threemin", `${min}_${timeToSend}`);
@@ -42,12 +45,14 @@ exports.generatedTimeEveryAfterEveryThreeMin = (io) => {
       min--;
       if (min < 0) min = 2; // Reset min to 2 when it reaches 0
     }
-  });
+  }, 1000);
+  // });
 };
 
 exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
   let min = 4;
-  const job = schedule.schedule("* * * * * *", function () {
+  // const job = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("fivemin", `${min}_${timeToSend}`);
@@ -64,18 +69,19 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
       min--;
       if (min < 0) min = 4; // Reset min to 2 when it reaches 0
     }
-  });
+  }, 1000);
+  // });
 };
 
 exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
-  let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
+  // let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date();
     const timeToSend =
       currentTime.getSeconds() > 0
         ? 60 - currentTime.getSeconds()
         : currentTime.getSeconds();
     io.emit("onemintrx", timeToSend);
-    console.log(timeToSend);
     if (timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
@@ -108,7 +114,9 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
           });
       }, [4000]);
     }
-  });
+  }, 1000);
+
+  // });
 };
 
 async function sendOneMinResultToDatabase(obj) {
@@ -145,7 +153,8 @@ async function sendOneMinResultToDatabase(obj) {
 
 exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
   let min = 2;
-  let twoMinTrxJob = schedule.schedule("* * * * * *", function () {
+  // let twoMinTrxJob = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("threemintrx", `${min}_${timeToSend}`);
@@ -185,7 +194,8 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
       min--;
       if (min < 0) min = 2; // Reset min to 2 when it reaches 0
     }
-  });
+  }, 1000);
+  // });
 };
 async function sendThreeMinResultToDatabase(obj) {
   const newString = obj.hash;
@@ -221,7 +231,8 @@ async function sendThreeMinResultToDatabase(obj) {
 
 exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
   let min = 4;
-  let threeMinTrxJob = schedule.schedule("* * * * * *", function () {
+  // let threeMinTrxJob = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("fivemintrx", `${min}_${timeToSend}`);
@@ -261,7 +272,8 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
       min--;
       if (min < 0) min = 4; // Reset min to 4 when it reaches 0
     }
-  });
+  }, 1000);
+  // });
 };
 
 async function sendFiveMinResultToDatabase(obj) {
