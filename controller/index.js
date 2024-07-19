@@ -95,9 +95,9 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
           .then(async (result) => {
             if (result?.data?.data?.[0]) {
               const obj = result.data.data?.[0];
-              sendOneMinResultToDatabase(obj);
+              sendOneMinResultToDatabase(time,obj);
             } else {
-              sendOneMinResultToDatabase(
+              sendOneMinResultToDatabase(time,
                 functionToreturnDummyResult(
                   Math.floor(Math.random() * (4 - 0 + 1)) + 0
                 )
@@ -106,7 +106,7 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
           })
           .catch((e) => {
             console.log("error in tron api");
-            sendOneMinResultToDatabase(
+            sendOneMinResultToDatabase(time,
               functionToreturnDummyResult(
                 Math.floor(Math.random() * (4 - 0 + 1)) + 0
               )
@@ -119,7 +119,7 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
   // });
 };
 
-async function sendOneMinResultToDatabase(obj) {
+async function sendOneMinResultToDatabase(time,obj) {
   const newString = obj.hash;
   let num = null;
   for (let i = newString.length - 1; i >= 0; i--) {
@@ -171,9 +171,9 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
           .then(async (result) => {
             if (result?.data?.data[0]) {
               const obj = result.data.data[0];
-              sendThreeMinResultToDatabase(obj);
+              sendThreeMinResultToDatabase(time,obj);
             } else {
-              sendThreeMinResultToDatabase(
+              sendThreeMinResultToDatabase(time,
                 functionToreturnDummyResult(
                   Math.floor(Math.random() * (4 - 0 + 1)) + 0
                 )
@@ -182,7 +182,7 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
           })
           .catch((e) => {
             console.log("error in tron api");
-            sendThreeMinResultToDatabase(
+            sendThreeMinResultToDatabase(time,
               functionToreturnDummyResult(
                 Math.floor(Math.random() * (4 - 0 + 1)) + 0
               )
@@ -197,7 +197,7 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
   }, 1000);
   // });
 };
-async function sendThreeMinResultToDatabase(obj) {
+async function sendThreeMinResultToDatabase(time,obj) {
   const newString = obj.hash;
   let num = null;
   for (let i = newString.length - 1; i >= 0; i--) {
@@ -249,9 +249,9 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
           .then(async (result) => {
             if (result?.data?.data[0]) {
               const obj = result.data.data[0];
-              sendFiveMinResultToDatabase(obj);
+              sendFiveMinResultToDatabase(time,obj);
             } else {
-              sendFiveMinResultToDatabase(
+              sendFiveMinResultToDatabase(time,
                 functionToreturnDummyResult(
                   Math.floor(Math.random() * (4 - 0 + 1)) + 0
                 )
@@ -260,7 +260,7 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
           })
           .catch((e) => {
             console.log("error in tron api");
-            sendFiveMinResultToDatabase(
+            sendFiveMinResultToDatabase(time,
               functionToreturnDummyResult(
                 Math.floor(Math.random() * (4 - 0 + 1)) + 0
               )
@@ -276,7 +276,7 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
   // });
 };
 
-async function sendFiveMinResultToDatabase(obj) {
+async function sendFiveMinResultToDatabase(time,obj) {
   const newString = obj.hash;
   let num = null;
   for (let i = newString.length - 1; i >= 0; i--) {
