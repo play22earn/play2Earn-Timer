@@ -12,6 +12,7 @@ const soment = require("moment-timezone");
 const allRoutes = require("./routes/Routes");
 const { functionToreturnDummyResult } = require("./helper/adminHelper");
 const { default: axios } = require("axios");
+const { scheduleJob } = require("node-schedule");
 
 const io = new Server(httpServer, {
   cors: {
@@ -65,7 +66,7 @@ if (trx) {
   const currentMinute = nowIST.minutes();
   const currentSecond = nowIST.seconds();
 
-  const minutesRemaining = 30 - currentMinute - 1;
+  const minutesRemaining = 60 - currentMinute - 1;
   const secondsRemaining = 60 - currentSecond;
 
   const delay = (minutesRemaining * 60 + secondsRemaining) * 1000;
@@ -78,8 +79,10 @@ if (trx) {
   }, delay);
 }
 const generatedTimeEveryAfterEveryOneMinTRX = () => {
-  //  let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
-  setInterval(() => {
+  let rule = new schedule.RecurrenceRule();
+  rule.second = new schedule.Range(0, 59);
+  let oneMinTrxJob = schedule.scheduleJob(rule, function () {
+    // setInterval(() => {
     const currentTime = new Date();
     const timeToSend =
       currentTime.getSeconds() > 0
@@ -136,9 +139,8 @@ const generatedTimeEveryAfterEveryOneMinTRX = () => {
           });
       }, [4000]);
     }
-  }, 1000);
-
-  //  });
+    // }, 1000);
+  });
 };
 
 httpServer.listen(PORT, () => {

@@ -13,6 +13,9 @@ const moment = require("moment");
 const soment = require("moment-timezone");
 const { default: axios } = require("axios");
 
+const { getAlredyPlacedBet } = require("../helper/adminHelper");
+const { failMsg } = require("../helper/helperResponse");
+
 exports.generatedTimeEveryAfterEveryOneMin = (io) => {
   const job = schedule.schedule("* * * * * *", function () {
     // setInterval(() => {
@@ -73,10 +76,7 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
   });
 };
 
-
-
- exports.sendOneMinResultToDatabase = async(time, obj)=> {
-
+exports.sendOneMinResultToDatabase = async (time, obj) => {
   const newString = obj.hash;
   let num = null;
   for (let i = newString.length - 1; i >= 0; i--) {
@@ -95,8 +95,7 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
     `${obj.hash.slice(-5)}`,
     obj.number,
   ])
-    .then((result) => {
-    })
+    .then((result) => {})
     .catch((e) => {
       console.log(e);
     });
@@ -107,7 +106,7 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
     gameid: 1,
   };
   oneMinTrxSendReleasNumber(parameter);
-}
+};
 
 exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
   let min = 2;
@@ -511,3 +510,135 @@ function updateReferralCountnew(users) {
 
   return users;
 }
+
+exports.getGameHistory = async (req, res) => {
+  const { gameid, limit } = req.query;
+
+  if (!gameid || !limit) {
+    return res.status(400).json({
+      // Changed to 400 for bad request
+      msg: "gameid and limit are required",
+    });
+  }
+
+  const num_gameid = Number(gameid);
+  const num_limit = Number(limit);
+
+  if (typeof num_gameid !== "number" || typeof num_limit !== "number") {
+    return res.status(400).send("gameid and limit should be numbers");
+  }
+  try {
+    const query =
+      "SELECT * FROM tr42_win_slot WHERE tr41_packtype = ? ORDER BY tr_transaction_id DESC LIMIT 200";
+    await queryDb(query, [Number(num_gameid)])
+      .then((result) => {
+        return res.status(200).json({
+          msg: "Data fetched successfully",
+          result: result,
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+        return res.status(500).json({
+          msg: `Something went wrong api calling`,
+        });
+      });
+  } catch (e) {
+    return failMsg("Something went worng in node api");
+  }
+};
+exports.getMyHistory = async (req, res) => {
+  const { gameid, userid } = req.query;
+
+  if (!gameid || !userid) {
+    return res.status(400).json({
+      // Changed to 400 for bad request
+      msg: "gameid and userid are required",
+    });
+  }
+  const num_gameid = Number(gameid);
+  const num_userid = Number(userid);
+
+  if (typeof num_gameid !== "number" || typeof num_userid !== "number") {
+    return res.status(400).send("gameid and limit should be numbers");
+  }
+  try {
+    const query = `SELECT * FROM trx_colour_bet WHERE userid = ? AND gameid = ? ORDER BY gamesno DESC LIMIT 100`;
+    await queryDb(query, [Number(num_userid), Number(num_gameid)])
+      .then((result) => {
+        return res.status(200).json({
+          msg: "Data fetched successfully",
+          data: result,
+        });
+      })
+      .catch((e) => {
+        return res.status(500).json({
+          msg: `Something went wrong api calling`,
+        });
+      });
+  } catch (e) {
+    return failMsg("Something went worng in node api");
+  }
+};
+exports.placeBetTrx = async (req, res) => {
+  const { amount, gameid, gamesnio, number, userid } = req.body;
+  if (gamesnio && Number(gamesnio) <= 1) {
+    return res.status(200).json({
+      msg: `Refresh your page may be your game history not updated.`,
+    });
+  }
+
+  if (!amount || !gameid || !gamesnio || !number || !userid)
+    return res.status(200).json({
+      msg: `Everything is required`,
+    });
+
+  if (userid && Number(userid) <= 0) {
+    return res.status(200).json({
+      msg: `Please refresh your page`,
+    });
+  }
+
+  if (Number(amount) <= 0)
+    return res.status(200).json({
+      msg: `Amount should be grater or equal to 1.`,
+    });
+  if (gameid && Number(gameid) <= 0)
+    return res.status(200).json({
+      msg: `Type is not define`,
+    });
+  if (gameid && Number(gameid) >= 4)
+    return res.status(200).json({
+      msg: `Type is not define`,
+    });
+
+  try {
+    const query = `INSERT INTO trx_colour_bet(userid,amount,gameid,number,gamesno,totalamount,commission,status) 
+    VALUES(?,?,?,?,?,?,?,?)`;
+    await queryDb(query, [
+      String(userid),
+      String(amount),
+      Number(gameid),
+      String(number),
+      String(gamesnio),
+      String(Number(Number(amount) * 0.98)?.toFixed(2)),
+      String(Number(Number(amount) * 0.02)?.toFixed(2)),
+      "0",
+    ])
+      .then((newresult) => {
+        return res.status(200).json({
+          error:"200",
+          msg: 'Bid Placed Successfully',
+        });
+      })
+      .catch((error) => {
+        return res.status(500).json({
+          msg: `Something went wrong api calling`,
+        });
+      });
+  } catch (e) {
+    return failMsg("Something went worng in node api");
+  }
+};
+
+exports.getMy;
