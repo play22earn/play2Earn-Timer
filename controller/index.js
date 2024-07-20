@@ -73,71 +73,10 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
   });
 };
 
-exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
-  //  let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
-  setInterval(() => {
-    const currentTime = new Date();
-    const timeToSend =
-      currentTime.getSeconds() > 0
-        ? 60 - currentTime.getSeconds()
-        : currentTime.getSeconds();
-    io.emit("onemintrx", timeToSend);
-    if (timeToSend === 6) {
-      const datetoAPISend = parseInt(new Date().getTime().toString());
-      const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome;
-      // .add(5, "hours").add(30, "minutes").valueOf();
-      setTimeout(async () => {
-        const res = await axios
-          .get(
-            `https://apilist.tronscanapi.com/api/block`,
-            {
-              params: {
-                sort: "-balance",
-                start: "0",
-                limit: "20",
-                producer: "",
-                number: "",
-                start_timestamp: datetoAPISend,
-                end_timestamp: datetoAPISend,
-              },
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          )
-          .then(async (result) => {
-            if (result?.data?.data?.[0]) {
-              const obj = result.data.data?.[0];
-              sendOneMinResultToDatabase(time, obj);
-            } else {
-              sendOneMinResultToDatabase(
-                time,
-                functionToreturnDummyResult(
-                  Math.floor(Math.random() * (4 - 0 + 1)) + 0
-                )
-              );
-            }
-          })
-          .catch((e) => {
-            console.log("error in tron api");
-            sendOneMinResultToDatabase(
-              time,
-              functionToreturnDummyResult(
-                Math.floor(Math.random() * (4 - 0 + 1)) + 0
-              )
-            );
-          });
-      }, [4000]);
-    }
-  }, 1000);
 
-  //  });
-};
 
-async function sendOneMinResultToDatabase(time, obj) {
+ exports.sendOneMinResultToDatabase = async(time, obj)=> {
+
   const newString = obj.hash;
   let num = null;
   for (let i = newString.length - 1; i >= 0; i--) {
