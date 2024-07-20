@@ -12,7 +12,7 @@ const soment = require("moment-timezone");
 const allRoutes = require("./routes/Routes");
 const { functionToreturnDummyResult } = require("./helper/adminHelper");
 const { default: axios } = require("axios");
-const schedule = require('node-schedule');
+const schedule = require("node-schedule");
 
 const io = new Server(httpServer, {
   cors: {
@@ -89,7 +89,6 @@ const generatedTimeEveryAfterEveryOneMinTRX = () => {
         ? 60 - currentTime.getSeconds()
         : currentTime.getSeconds();
     io.emit("onemintrx", timeToSend);
-    console.log(timeToSend);
     if (timeToSend === 9) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
@@ -117,7 +116,7 @@ const generatedTimeEveryAfterEveryOneMinTRX = () => {
             }
           )
           .then(async (result) => {
-            if (!result?.data?.data?.[0]) {
+            if (result?.data?.data?.[0]) {
               const obj = result.data.data?.[0];
               allroutes.sendOneMinResultToDatabase(time, obj);
             } else {
