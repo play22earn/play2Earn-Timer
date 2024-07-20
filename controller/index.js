@@ -82,7 +82,6 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
         ? 60 - currentTime.getSeconds()
         : currentTime.getSeconds();
     io.emit("onemintrx", timeToSend);
-    console.log(timeToSend);
     if (timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
@@ -158,7 +157,6 @@ async function sendOneMinResultToDatabase(time, obj) {
     obj.number,
   ])
     .then((result) => {
-      console.log(result, "thisis result");
     })
     .catch((e) => {
       console.log(e);
