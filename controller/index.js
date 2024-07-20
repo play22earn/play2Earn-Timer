@@ -14,8 +14,8 @@ const soment = require("moment-timezone");
 const { default: axios } = require("axios");
 
 exports.generatedTimeEveryAfterEveryOneMin = (io) => {
-   const job = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  const job = schedule.schedule("* * * * * *", function () {
+    // setInterval(() => {
     const currentTime = new Date();
     const timeToSend =
       currentTime.getSeconds() > 0
@@ -26,14 +26,14 @@ exports.generatedTimeEveryAfterEveryOneMin = (io) => {
       // oneMinCheckResult();
       oneMinColorWining();
     }
- // }, 1000);
-   });
+    // }, 1000);
+  });
 };
 
 exports.generatedTimeEveryAfterEveryThreeMin = (io) => {
   let min = 2;
-   const job = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  const job = schedule.schedule("* * * * * *", function () {
+    // setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("threemin", `${min}_${timeToSend}`);
@@ -45,14 +45,14 @@ exports.generatedTimeEveryAfterEveryThreeMin = (io) => {
       min--;
       if (min < 0) min = 2; // Reset min to 2 when it reaches 0
     }
-//  }, 1000);
-   });
+    //  }, 1000);
+  });
 };
 
 exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
   let min = 4;
-   const job = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  const job = schedule.schedule("* * * * * *", function () {
+    // setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("fivemin", `${min}_${timeToSend}`);
@@ -69,13 +69,13 @@ exports.generatedTimeEveryAfterEveryFiveMin = (io) => {
       min--;
       if (min < 0) min = 4; // Reset min to 2 when it reaches 0
     }
- // }, 1000);
-   });
+    // }, 1000);
+  });
 };
 
 exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
-   let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  //  let oneMinTrxJob = schedule.schedule("* * * * * *", function () {
+  setInterval(() => {
     const currentTime = new Date();
     const timeToSend =
       currentTime.getSeconds() > 0
@@ -91,7 +91,23 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
       setTimeout(async () => {
         const res = await axios
           .get(
-            `https://apilist.tronscanapi.com/api/block?sort=-balance&start=0&limit=20&producer=&number=&start_timestamp=${datetoAPISend}&end_timestamp=${datetoAPISend}`
+            `https://apilist.tronscanapi.com/api/block`,
+            {
+              params: {
+                sort: "-balance",
+                start: "0",
+                limit: "20",
+                producer: "",
+                number: "",
+                start_timestamp: datetoAPISend,
+                end_timestamp: datetoAPISend,
+              },
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           )
           .then(async (result) => {
             if (result?.data?.data?.[0]) {
@@ -117,9 +133,9 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
           });
       }, [4000]);
     }
- // }, 1000);
+  }, 1000);
 
-   });
+  //  });
 };
 
 async function sendOneMinResultToDatabase(time, obj) {
@@ -158,21 +174,37 @@ async function sendOneMinResultToDatabase(time, obj) {
 
 exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
   let min = 2;
-   let twoMinTrxJob = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  let twoMinTrxJob = schedule.schedule("* * * * * *", function () {
+    // setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("threemintrx", `${min}_${timeToSend}`);
     if (min === 0 && timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome
+      const time = actualtome;
       // .add(5, "hours").add(30, "minutes").valueOf();
 
       setTimeout(async () => {
         const res = await axios
           .get(
-            `https://apilist.tronscanapi.com/api/block?sort=-balance&start=0&limit=20&producer=&number=&start_timestamp=${datetoAPISend}&end_timestamp=${datetoAPISend}`
+            `https://apilist.tronscanapi.com/api/block`,
+            {
+              params: {
+                sort: "-balance",
+                start: "0",
+                limit: "20",
+                producer: "",
+                number: "",
+                start_timestamp: datetoAPISend,
+                end_timestamp: datetoAPISend,
+              },
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           )
           .then(async (result) => {
             if (result?.data?.data[0]) {
@@ -202,8 +234,8 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
       min--;
       if (min < 0) min = 2; // Reset min to 2 when it reaches 0
     }
- // }, 1000);
-   });
+    // }, 1000);
+  });
 };
 async function sendThreeMinResultToDatabase(time, obj) {
   const newString = obj.hash;
@@ -239,21 +271,37 @@ async function sendThreeMinResultToDatabase(time, obj) {
 
 exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
   let min = 4;
-   let threeMinTrxJob = schedule.schedule("* * * * * *", function () {
- // setInterval(() => {
+  let threeMinTrxJob = schedule.schedule("* * * * * *", function () {
+    // setInterval(() => {
     const currentTime = new Date().getSeconds(); // Get the current time
     const timeToSend = currentTime > 0 ? 60 - currentTime : currentTime;
     io.emit("fivemintrx", `${min}_${timeToSend}`);
     if (min === 0 && timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome
+      const time = actualtome;
       // .add(5, "hours").add(30, "minutes").valueOf();
 
       setTimeout(async () => {
         const res = await axios
           .get(
-            `https://apilist.tronscanapi.com/api/block?sort=-balance&start=0&limit=20&producer=&number=&start_timestamp=${datetoAPISend}&end_timestamp=${datetoAPISend}`
+            `https://apilist.tronscanapi.com/api/block`,
+            {
+              params: {
+                sort: "-balance",
+                start: "0",
+                limit: "20",
+                producer: "",
+                number: "",
+                start_timestamp: datetoAPISend,
+                end_timestamp: datetoAPISend,
+              },
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
           )
           .then(async (result) => {
             if (result?.data?.data[0]) {
@@ -283,8 +331,8 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
       min--;
       if (min < 0) min = 4; // Reset min to 4 when it reaches 0
     }
- // }, 1000);
-   });
+    // }, 1000);
+  });
 };
 
 async function sendFiveMinResultToDatabase(time, obj) {
