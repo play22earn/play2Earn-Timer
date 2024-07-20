@@ -86,7 +86,7 @@ exports.generatedTimeEveryAfterEveryOneMinTRX = (io) => {
     if (timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome
+      const time = actualtome;
       // .add(5, "hours").add(30, "minutes").valueOf();
       setTimeout(async () => {
         const res = await axios
@@ -141,7 +141,9 @@ async function sendOneMinResultToDatabase(time, obj) {
     `${obj.hash.slice(-5)}`,
     obj.number,
   ])
-    .then((result) => {console.log(result,"thisis result")})
+    .then((result) => {
+      console.log(result, "thisis result");
+    })
     .catch((e) => {
       console.log(e);
     });
@@ -164,7 +166,8 @@ exports.generatedTimeEveryAfterEveryThreeMinTRX = (io) => {
     if (min === 0 && timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome.add(5, "hours").add(30, "minutes").valueOf();
+      const time = actualtome
+      // .add(5, "hours").add(30, "minutes").valueOf();
 
       setTimeout(async () => {
         const res = await axios
@@ -215,7 +218,7 @@ async function sendThreeMinResultToDatabase(time, obj) {
   await queryDb(query, [
     num,
     String(moment(time).format("HH:mm:ss")),
-    1,
+    2,
     `**${obj.hash.slice(-4)}`,
     JSON.stringify(obj),
     `${obj.hash.slice(-5)}`,
@@ -244,7 +247,8 @@ exports.generatedTimeEveryAfterEveryFiveMinTRX = (io) => {
     if (min === 0 && timeToSend === 6) {
       const datetoAPISend = parseInt(new Date().getTime().toString());
       const actualtome = soment.tz("Asia/Kolkata");
-      const time = actualtome.add(5, "hours").add(30, "minutes").valueOf();
+      const time = actualtome
+      // .add(5, "hours").add(30, "minutes").valueOf();
 
       setTimeout(async () => {
         const res = await axios
@@ -296,7 +300,7 @@ async function sendFiveMinResultToDatabase(time, obj) {
   await queryDb(query, [
     num,
     String(moment(time).format("HH:mm:ss")),
-    1,
+    3,
     `**${obj.hash.slice(-4)}`,
     JSON.stringify(obj),
     `${obj.hash.slice(-5)}`,
